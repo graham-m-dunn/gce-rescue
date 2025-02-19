@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Initilization Instance() with VM information. """
+""" Initialization Instance() with VM information. """
 import sys
+import logging
 
 from googleapiclient.discovery import Resource
 from googleapiclient.errors import HttpError
@@ -26,6 +27,7 @@ from gce_rescue.tasks.disks import list_disk, list_snapshot
 from gce_rescue.tasks.pre_validations import Validations
 from gce_rescue.config import get_config
 
+_logger = logging.getLogger(__name__)
 
 def get_instance_info(
   compute: Resource,
@@ -56,11 +58,21 @@ def guess_guest(data: Dict) -> str:
         arch = disk['architecture'].lower()
       else:
         arch = 'x86_64'
+      
+      # If disk['licenses'] contains 'windows', or disk['guestOsFeatures']['type'] == 'WINDOWS' then use projects/windows-cloud/global/images/family/windows-2022-core as guest_default      
+      if 'licenses' in disk and 'windows' in ''.join(disk['licenses']):
+        _logger.info('Setting guest OS to Windows from licenses')
+        return guests[arch][2]
+      elif 'guestOsFeatures' in disk and disk['guestOsFeatures'][0]['type'] == 'WINDOWS':
+        _logger.info('Setting guest OS to Windows from guestOsFeatures')
+        return guests[arch][2]
+
       guest_default = guests[arch][0]
       guest_name = guest_default.split('/')[-1]
       for lic in disk['licenses']:
         if guest_name in lic:
           guest_default = guests[arch][1]
+  _logger.info(f'Returning {guest_default}')
   return guest_default
 
 

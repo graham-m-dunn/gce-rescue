@@ -29,7 +29,8 @@ config = {
   'source_guests': {
     'x86_64':[
       'projects/debian-cloud/global/images/family/debian-11',
-      'projects/rocky-linux-cloud/global/images/family/rocky-linux-9'
+      'projects/rocky-linux-cloud/global/images/family/rocky-linux-9',
+      'projects/windows-cloud/global/images/family/windows-2022-core'
       ],
     'arm64':[
       'projects/debian-cloud/global/images/family/debian-11-arm64',
@@ -54,7 +55,7 @@ def process_args():
                       required=True)
   parser.add_argument('-n', '--name', help='Instance name.', required=True)
   parser.add_argument('-d', '--debug', action='store_true',
-                      help='Print to the log file in debug leve')
+                      help='Print to the log file in debug level')
   parser.add_argument('-f', '--force', action='store_true',
                       help='Don\'t ask for confirmation.')
   parser.add_argument('--skip-snapshot', action='store_true',
